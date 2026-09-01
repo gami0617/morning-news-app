@@ -7,7 +7,7 @@ import feedparser
 from supabase import create_client
 
 # 1. 直接値を設定
-SUPABASE_URL = "https://lalbvmmigfkthliihjil.supabase.co/rest/v1/"
+SUPABASE_URL = "https://lalbvmmigfkthliihjil.supabase.co"
 SUPABASE_KEY = "sb_publishable_g7WYzExhUw4-ivkla-GURQ_luS59YLN" # ご自身のPublishable Key
 
 GMAIL_USER = "ikegamiseimaseima.14012828@gmail.com"  # ご自身のGmailアドレス
@@ -48,10 +48,10 @@ def send_email(to_email, news_content):
     except Exception as e:
         print(f"送信失敗 ({to_email}): {e}")
 
-# 6. メイン処理：Supabaseからユーザーを取得してメール配信
+# 6. メイン処理：Supabaseから「オン」になっているユーザーだけ取得してメール配信
 def main():
-    # 現在の配信時刻に合致するユーザーを取得
-    response = supabase.table("subscribers").select("*").eq("dispatch_time", current_time_jst).execute()
+    # dispatch_time が一致し、かつ is_active が True（オン）のユーザーのみ取得
+    response = supabase.table("subscribers").select("*").eq("dispatch_time", current_time_jst).eq("is_active", True).execute()
     users = response.data
 
     if not users:
