@@ -6,26 +6,19 @@ from datetime import datetime, timezone, timedelta
 import feedparser
 from supabase import create_client
 
-# 1. 直接値を設定（Secrets読み込みエラーを完全に回避）
+# 1. 直接値を設定
 SUPABASE_URL = "https://lalbvmmigfkthliihjil.supabase.co"
-SUPABASE_KEY = "sb_publishable_g7WYzExhUw4-ivkla-GURQ_luS59YLN" # ご自身の長いPublishable Key
+SUPABASE_KEY = "sb_publishable_g7WYzExhUw4-ivkla-GURQ_luS59YLN..." # ご自身のPublishable Key
 
-GMAIL_USER = "ikegamiseimaseima.14012828@gmail.com"
-GMAIL_PASS = "maza gqll qqii vndo"
-
-# 読み込みチェック
-if not SUPABASE_URL or not SUPABASE_KEY:
-    raise ValueError("SUPABASE_URL または SUPABASE_KEY が環境変数に設定されていません。")
-
-if not GMAIL_USER or not GMAIL_PASS:
-    raise ValueError("GMAIL_USER または GMAIL_PASS が環境変数に設定されていません。")
+GMAIL_USER = "your_email@gmail.com"  # ご自身のGmailアドレス
+GMAIL_PASS = "abcd efgh ijkl mnop"   # 16桁のアプリパスワード
 
 # 2. Supabaseクライアントの初期化
 supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 
-# 3. 日本時間の現在時刻（HH:00 形式）を取得
+# 3. 日本時間の現在時刻（HH:MM 形式）を取得
 JST = timezone(timedelta(hours=9))
-current_time_jst = datetime.now(JST).strftime("%H:00")
+current_time_jst = datetime.now(JST).strftime("%H:%M")
 print(f"現在時刻 (JST): {current_time_jst}")
 
 # 4. RSSフィード（Googleニュース）の取得関数
@@ -42,7 +35,7 @@ def send_email(to_email, news_content):
     msg = MIMEMultipart()
     msg['From'] = GMAIL_USER
     msg['To'] = to_email
-    msg['Subject'] = f"【朝ニュース配信】{current_time_jst} の最新ニュース"
+    msg['Subject'] = f"【ニュース配信】{current_time_jst} の最新ニュース"
 
     body = f"いつもご利用ありがとうございます。\n指定時刻（{current_time_jst}）のニュースをお届けします。\n\n{news_content}\n\n--"
     msg.attach(MIMEText(body, 'plain'))
@@ -75,4 +68,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-    
