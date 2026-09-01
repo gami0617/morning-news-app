@@ -57,7 +57,7 @@
 
 <div class="container">
   <h1>Morning Digest</h1>
-  <p>毎朝指定した時間に、厳選された最新ニュースをあなたのお手元へお届けします。</p>
+  <p>指定した時間に、厳選された最新ニュースをお手元へお届けします。</p>
 
   <form id="subscribe-form">
     <div class="form-group">
@@ -68,13 +68,20 @@
     <div class="form-group">
       <label for="time">配信希望時間</label>
       <select id="time" required>
-        <option value="07:00">朝 07:00</option>
-        <option value="08:00">朝 08:00</option>
-        <option value="09:00">朝 09:00</option>
+        <option value="06:00">06:00（早朝）</option>
+        <option value="07:00" selected>07:00（朝）</option>
+        <option value="08:00">08:00（朝）</option>
+        <option value="09:00">09:00（朝）</option>
+        <option value="10:00">10:00（午前）</option>
+        <option value="12:00">12:00（昼）</option>
+        <option value="15:00">15:00（午後）</option>
+        <option value="18:00">18:00（夕方）</option>
+        <option value="21:00">21:00（夜）</option>
+        <option value="22:00">22:00（夜）</option>
       </select>
     </div>
 
-    <button type="submit">無料で登録する</button>
+    <button type="submit">設定して登録する</button>
   </form>
 
   <div id="message"></div>
@@ -82,8 +89,8 @@
 </div>
 
 <script>
-  // ここに自分のSupabase API情報を貼り付けます
-  const SUPABASE_URL = "https://lalbvmmigfkthliihjil.supabase.co/rest/v1/";
+  // Supabase URL (末尾の /rest/v1/ は含めない)
+  const SUPABASE_URL = "https://lalbvmmigfkthliihjil.supabase.co";
   const SUPABASE_KEY = "g7WYzExhUw4-ivkla-GURQ_luS59YLN";
   const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
