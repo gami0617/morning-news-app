@@ -8,7 +8,7 @@ from supabase import create_client
 # 環境変数の取得
 GMAIL_USER = os.environ.get("ikegamiseimaseima.14012828@gmail.com")
 GMAIL_PASS = os.environ.get("maza gqll qqii vndo")
-SUPABASE_URL = os.environ.get("https://lalbvmmigfkthliihjil.supabase.co/rest/v1/")
+SUPABASE_URL = os.environ.get("https://lalbvmmigfkthliihjil.supabase.co")
 SUPABASE_KEY = os.environ.get("g7WYzExhUw4-ivkla-GURQ_luS59YLN")
 
 # Supabase初期化
