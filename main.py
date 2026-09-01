@@ -7,11 +7,11 @@ import feedparser
 from supabase import create_client
 
 # 1. 直接値を設定
-SUPABASE_URL = "https://lalbvmmigfkthliihjil.supabase.co"
-SUPABASE_KEY = "sb_publishable_g7WYzExhUw4-ivkla-GURQ_luS59YLN..." # ご自身のPublishable Key
+SUPABASE_URL = "https://lalbvmmigfkthliihjil.supabase.co/rest/v1/"
+SUPABASE_KEY = "sb_publishable_g7WYzExhUw4-ivkla-GURQ_luS59YLN" # ご自身のPublishable Key
 
-GMAIL_USER = "your_email@gmail.com"  # ご自身のGmailアドレス
-GMAIL_PASS = "abcd efgh ijkl mnop"   # 16桁のアプリパスワード
+GMAIL_USER = "ikegamiseimaseima.14012828@gmail.com"  # ご自身のGmailアドレス
+GMAIL_PASS = "maza gqll qqii vndo"   # 16桁のアプリパスワード
 
 # 2. Supabaseクライアントの初期化
 supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
