@@ -11,7 +11,8 @@
     h1 { font-size: 1.5rem; margin-bottom: 1.5rem; text-align: center; }
     .form-group { margin-bottom: 1rem; }
     label { display: block; margin-bottom: 0.5rem; font-weight: bold; }
-    input, button { width: 100%; padding: 0.75rem; box-sizing: border-box; border: 1px solid #ccc; border-radius: 4px; font-size: 1rem; }
+    input[type="email"], input[type="time"], button { width: 100%; padding: 0.75rem; box-sizing: border-box; border: 1px solid #ccc; border-radius: 4px; font-size: 1rem; }
+    .checkbox-label { display: flex; align-items: center; gap: 0.5rem; font-weight: normal; cursor: pointer; }
     button { background-color: #007bff; color: white; border: none; cursor: pointer; margin-top: 1rem; font-weight: bold; }
     button:hover { background-color: #0056b3; }
     #message { margin-top: 1rem; text-align: center; font-weight: bold; }
@@ -30,14 +31,19 @@
         <label for="dispatch-time">配信希望時間（分単位）</label>
         <input type="time" id="dispatch-time" required value="07:00">
       </div>
-      <button type="submit">登録する</button>
+      <div class="form-group">
+        <label class="checkbox-label">
+          <input type="checkbox" id="is-active" checked style="width: auto;"> ニュース配信を有効にする（オン）
+        </label>
+      </div>
+      <button type="submit">設定を保存する</button>
     </form>
     <div id="message"></div>
   </div>
 
   <script>
     const SUPABASE_URL = "https://lalbvmmigfkthliihjil.supabase.co";
-    const SUPABASE_KEY = "sb_publishable_g7WYzExhUw4-ivkla-GURQ_luS59YLN"; // ご自身のPublishable Key
+    const SUPABASE_KEY = "sb_publishable_g7WYzExhUw4-ivkla-GURQ_luS59YLN..."; // ご自身のPublishable Key
 
     const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
@@ -45,23 +51,24 @@
       e.preventDefault();
       const email = document.getElementById('email').value;
       const dispatch_time = document.getElementById('dispatch-time').value;
+      const is_active = document.getElementById('is-active').checked; // チェックされているか (true / false)
       const messageDiv = document.getElementById('message');
 
-      messageDiv.textContent = '登録中...';
+      messageDiv.textContent = '保存中...';
       messageDiv.style.color = 'black';
 
       const { data, error } = await supabaseClient
         .from('subscribers')
-        .upsert([{ email, dispatch_time }], { onConflict: 'email' });
+        .upsert([{ email, dispatch_time, is_active }], { onConflict: 'email' });
 
       if (error) {
         console.error('Error:', error);
-        messageDiv.textContent = '登録に失敗しました。';
+        messageDiv.textContent = '保存に失敗しました。';
         messageDiv.style.color = 'red';
       } else {
-        messageDiv.textContent = '登録が完了しました！';
+        const statusText = is_active ? '配信「オン」で保存しました！' : '配信を「オフ（停止）」にしました！';
+        messageDiv.textContent = statusText;
         messageDiv.style.color = 'green';
-        document.getElementById('subscribe-form').reset();
       }
     });
   </script>
