@@ -1,54 +1,77 @@
-import email.message
-import datetime
 import os
 import smtplib
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
+from datetime import datetime, timezone, timedelta
 import feedparser
 from supabase import create_client
 
-# 環境変数の取得
+# 1. 環境変数の取得
+SUPABASE_URL = os.environ.get("https://lalbvmmigfkthliihjil.supabase.co")
+SUPABASE_KEY = os.environ.get("sb_publishable_g7WYzExhUw4-ivkla-GURQ_luS59YLN")
 GMAIL_USER = os.environ.get("ikegamiseimaseima.14012828@gmail.com")
 GMAIL_PASS = os.environ.get("maza gqll qqii vndo")
-SUPABASE_URL = os.environ.get("https://lalbvmmigfkthliihjil.supabase.co")
-SUPABASE_KEY = os.environ.get("g7WYzExhUw4-ivkla-GURQ_luS59YLN")
 
-# Supabase初期化
+# 読み込みチェック
+if not SUPABASE_URL or not SUPABASE_KEY:
+    raise ValueError("SUPABASE_URL または SUPABASE_KEY が環境変数に設定されていません。")
+
+if not GMAIL_USER or not GMAIL_PASS:
+    raise ValueError("GMAIL_USER または GMAIL_PASS が環境変数に設定されていません。")
+
+# 2. Supabaseクライアントの初期化
 supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 
-# 現在の日本時間（例: "07:00"）を取得
-now_jst = datetime.datetime.now(
-    datetime.timezone(datetime.timedelta(hours=9))
-).strftime("%H:00")
+# 3. 日本時間の現在時刻（HH:00 形式）を取得
+JST = timezone(timedelta(hours=9))
+current_time_jst = datetime.now(JST).strftime("%H:00")
+print(f"現在時刻 (JST): {current_time_jst}")
 
-# 1. 現在の時間に配信設定している宛先を取得
-response = (
-    supabase.table("subscribers")
-    .select("email")
-    .eq("dispatch_time", now_jst)
-    .execute()
-)
-target_emails = [item["email"] for item in response.data]
+# 4. RSSフィード（Googleニュース）の取得関数
+def fetch_news():
+    rss_url = "https://news.google.com/rss?hl=ja&gl=JP&ceid=JP:ja"
+    feed = feedparser.parse(rss_url)
+    articles = []
+    for entry in feed.entries[:5]: # 上位5件を取得
+        articles.append(f"・{entry.title}\n  {entry.link}")
+    return "\n\n".join(articles)
 
-if not target_emails:
-    print(f"{now_jst}: 対象ユーザーはいません。")
-    exit()
+# 5. メール送信関数
+def send_email(to_email, news_content):
+    msg = MIMEMultipart()
+    msg['From'] = GMAIL_USER
+    msg['To'] = to_email
+    msg['Subject'] = f"【朝ニュース配信】{current_time_jst} の最新ニュース"
 
-# 2. Yahoo!ニュース RSS取得
-feed = feedparser.parse("https://news.yahoo.co.jp/rss/topics/top-picks.xml")
-content = f"📰 Morning Digest ({now_jst}版)\n\n"
-for entry in feed.entries[:3]:
-    content += f"・{entry.title}\n{entry.link}\n\n"
+    body = f"いつもご利用ありがとうございます。\n指定時刻（{current_time_jst}）のニュースをお届けします。\n\n{news_content}\n\n--"
+    msg.attach(MIMEText(body, 'plain'))
 
-# 3. 該当のメールアドレスへ送信
-with smtplib.SMTP_SSL("smtp.gmail.com", 465) as server:
-    server.login(GMAIL_USER, GMAIL_PASS)
+    try:
+        with smtplib.SMTP_SSL("smtp.gmail.com", 465) as server:
+            server.login(GMAIL_USER, GMAIL_PASS)
+            server.sendmail(GMAIL_USER, to_email, msg.as_string())
+        print(f"送信成功: {to_email}")
+    except Exception as e:
+        print(f"送信失敗 ({to_email}): {e}")
 
-    for target in target_emails:
-        msg = email.message.EmailMessage()
-        msg["Subject"] = "【Morning Digest】本日のニュース"
-        msg["From"] = GMAIL_USER
-        msg["To"] = target
-        msg.set_content(content)
+# 6. メイン処理：Supabaseからユーザーを取得してメール配信
+def main():
+    # 現在の配信時刻に合致するユーザーを取得
+    response = supabase.table("subscribers").select("*").eq("dispatch_time", current_time_jst).execute()
+    users = response.data
 
-        server.send_message(msg)
+    if not users:
+        print(f"配信対象のユーザーはいません（設定時刻: {current_time_jst}）")
+        return
 
-print(f"{len(target_emails)} 件送信完了")
+    print(f"{len(users)} 件の配信対象ユーザーが見つかりました。")
+    news_content = fetch_news()
+
+    for user in users:
+        email = user.get("email")
+        if email:
+            send_email(email, news_content)
+
+if __name__ == "__main__":
+    main()
+    
