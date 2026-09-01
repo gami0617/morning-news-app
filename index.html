@@ -40,8 +40,7 @@
     </form>
     <div id="message"></div>
   </div>
-
-  <script>
+　<script>
     const SUPABASE_URL = "https://lalbvmmigfkthliihjil.supabase.co";
     const SUPABASE_KEY = "sb_publishable_g7WYzExhUw4-ivkla-GURQ_luS59YLN..."; // ご自身のPublishable Key
 
@@ -51,19 +50,22 @@
       e.preventDefault();
       const email = document.getElementById('email').value;
       const dispatch_time = document.getElementById('dispatch-time').value;
-      const is_active = document.getElementById('is-active').checked; // チェックされているか (true / false)
+      const is_active = document.getElementById('is-active').checked;
       const messageDiv = document.getElementById('message');
 
       messageDiv.textContent = '保存中...';
       messageDiv.style.color = 'black';
 
-      const { data, error } = await supabaseClient
+      // エラー詳細を確認するため、レスポンス全体を取得
+      const response = await supabaseClient
         .from('subscribers')
         .upsert([{ email, dispatch_time, is_active }], { onConflict: 'email' });
 
-      if (error) {
-        console.error('Error:', error);
-        messageDiv.textContent = '保存に失敗しました。';
+      console.log('Supabase Response:', response); // コンソールに詳細を出力
+
+      if (response.error) {
+        // エラー内容を画面上にも赤字で直接表示する
+        messageDiv.textContent = '保存失敗: ' + response.error.message;
         messageDiv.style.color = 'red';
       } else {
         const statusText = is_active ? '配信「オン」で保存しました！' : '配信を「オフ（停止）」にしました！';
@@ -72,5 +74,7 @@
       }
     });
   </script>
+　
+  
 </body>
 </html>
