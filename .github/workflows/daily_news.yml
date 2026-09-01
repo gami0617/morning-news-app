@@ -2,7 +2,8 @@ name: Hourly News Dispatcher
 
 on:
   schedule:
-    - cron: '0 * * * *'
+    # 5分ごとにチェック（0分, 5分, 10分...）
+    - cron: '*/5 * * * *'
   workflow_dispatch:
 
 jobs:
@@ -23,9 +24,4 @@ jobs:
           pip install supabase requests feedparser
 
       - name: Run Python script
-        env:
-          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
-          SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
-          GMAIL_USER: ${{ secrets.GMAIL_USER }}
-          GMAIL_PASS: ${{ secrets.GMAIL_PASS }}
         run: python main.py
