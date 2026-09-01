@@ -6,9 +6,10 @@ from datetime import datetime, timezone, timedelta
 import feedparser
 from supabase import create_client
 
-# 1. 環境変数の取得
-SUPABASE_URL = os.environ.get("https://lalbvmmigfkthliihjil.supabase.co")
-SUPABASE_KEY = os.environ.get("sb_publishable_g7WYzExhUw4-ivkla-GURQ_luS59YLN")
+# 1. 直接値を設定（Secrets読み込みエラーを完全に回避）
+SUPABASE_URL = "https://lalbvmmigfkthliihjil.supabase.co"
+SUPABASE_KEY = "sb_publishable_g7WYzExhUw4-ivkla-GURQ_luS59YLN" # ご自身の長いPublishable Key
+
 GMAIL_USER = os.environ.get("ikegamiseimaseima.14012828@gmail.com")
 GMAIL_PASS = os.environ.get("maza gqll qqii vndo")
 
