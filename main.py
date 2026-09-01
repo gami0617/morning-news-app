@@ -10,8 +10,8 @@ from supabase import create_client
 SUPABASE_URL = "https://lalbvmmigfkthliihjil.supabase.co"
 SUPABASE_KEY = "sb_publishable_g7WYzExhUw4-ivkla-GURQ_luS59YLN" # ご自身の長いPublishable Key
 
-GMAIL_USER = os.environ.get("ikegamiseimaseima.14012828@gmail.com")
-GMAIL_PASS = os.environ.get("maza gqll qqii vndo")
+GMAIL_USER = "ikegamiseimaseima.14012828@gmail.com"
+GMAIL_PASS = "maza gqll qqii vndo"
 
 # 読み込みチェック
 if not SUPABASE_URL or not SUPABASE_KEY:
