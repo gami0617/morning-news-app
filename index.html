@@ -3,120 +3,76 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Morning Digest | 朝のニュース自動配信</title>
+  <title>朝ニュース自動配信 登録画面</title>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
-    :root {
-      --bg: #f8fafc;
-      --card-bg: #ffffff;
-      --text-main: #0f172a;
-      --text-sub: #475569;
-      --primary: #2563eb;
-      --primary-hover: #1d4ed8;
-      --border: #e2e8f0;
-    }
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-      background-color: var(--bg);
-      color: var(--text-main);
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      min-height: 100vh;
-      margin: 0;
-      padding: 20px;
-    }
-    .container {
-      background: var(--card-bg);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 32px;
-      max-width: 400px;
-      width: 100%;
-      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
-    }
-    h1 { font-size: 20px; font-weight: 600; margin: 0 0 8px 0; letter-spacing: -0.02em; }
-    p { color: var(--text-sub); font-size: 14px; margin: 0 0 24px 0; line-height: 1.5; }
-    .form-group { margin-bottom: 20px; }
-    label { display: block; font-size: 13px; font-weight: 500; margin-bottom: 6px; }
-    input, select {
-      width: 100%; padding: 10px 12px; border: 1px solid var(--border);
-      border-radius: 6px; font-size: 14px; box-sizing: border-box; outline: none;
-    }
-    input:focus, select:focus { border-color: var(--primary); }
-    button {
-      width: 100%; background: var(--primary); color: white; border: none;
-      border-radius: 6px; padding: 12px; font-size: 14px; font-weight: 500; cursor: pointer;
-    }
-    button:hover { background: var(--primary-hover); }
-    .note { font-size: 12px; color: var(--text-sub); margin-top: 16px; text-align: center; }
-    #message { margin-top: 16px; font-size: 13px; text-align: center; }
+    body { font-family: sans-serif; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; background-color: #f4f4f9; }
+    .card { background: white; padding: 2rem; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); width: 100%; max-width: 400px; }
+    h1 { font-size: 1.5rem; margin-bottom: 1.5rem; text-align: center; }
+    .form-group { margin-bottom: 1rem; }
+    label { display: block; margin-bottom: 0.5rem; font-weight: bold; }
+    input, select, button { width: 100%; padding: 0.75rem; box-sizing: border-box; border: 1px solid #ccc; border-radius: 4px; font-size: 1rem; }
+    button { background-color: #007bff; color: white; border: none; cursor: pointer; margin-top: 1rem; font-weight: bold; }
+    button:hover { background-color: #0056b3; }
+    #message { margin-top: 1rem; text-align: center; font-weight: bold; }
   </style>
 </head>
 <body>
 
-<div class="container">
-  <h1>Morning Digest</h1>
-  <p>指定した時間に、厳選された最新ニュースをお手元へお届けします。</p>
+  <div class="card">
+    <h1>朝ニュース自動配信 登録</h1>
+    <form id="subscribe-form">
+      <div class="form-group">
+        <label for="email">メールアドレス</label>
+        <input type="email" id="email" required placeholder="example@gmail.com">
+      </div>
+      <div class="form-group">
+        <label for="dispatch-time">配信希望時間</label>
+        <select id="dispatch-time" required>
+          <option value="06:00">06:00</option>
+          <option value="07:00" selected>07:00</option>
+          <option value="08:00">08:00</option>
+          <option value="09:00">09:00</option>
+          <option value="10:00">10:00</option>
+          <option value="11:00">11:00</option>
+          <option value="12:00">12:00</option>
+        </select>
+      </div>
+      <button type="submit">登録する</button>
+    </form>
+    <div id="message"></div>
+  </div>
 
-  <form id="subscribe-form">
-    <div class="form-group">
-      <label for="email">メールアドレス</label>
-      <input type="email" id="email" placeholder="name@example.com" required>
-    </div>
+  <script>
+    const SUPABASE_URL = "https://lalbvmmigfkthliihjil.supabase.co";
+    // 以下の "sb_publishable_..." をご自身の Publishable Key に置き換えてください
+    const SUPABASE_KEY = "sb_publishable_g7WYzExhUw4-ivkla-GURQ_luS59YLN...";
 
-    <div class="form-group">
-      <label for="time">配信希望時間</label>
-      <select id="time" required>
-        <option value="06:00">06:00（早朝）</option>
-        <option value="07:00" selected>07:00（朝）</option>
-        <option value="08:00">08:00（朝）</option>
-        <option value="09:00">09:00（朝）</option>
-        <option value="10:00">10:00（午前）</option>
-        <option value="12:00">12:00（昼）</option>
-        <option value="15:00">15:00（午後）</option>
-        <option value="18:00">18:00（夕方）</option>
-        <option value="21:00">21:00（夜）</option>
-        <option value="22:00">22:00（夜）</option>
-      </select>
-    </div>
+    const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-    <button type="submit">設定して登録する</button>
-  </form>
+    document.getElementById('subscribe-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const email = document.getElementById('email').value;
+      const dispatch_time = document.getElementById('dispatch-time').value;
+      const messageDiv = document.getElementById('message');
 
-  <div id="message"></div>
-  <p class="note">※登録されたアドレスは通知送信のみに使用され、第三者に公開されることはありません。</p>
-</div>
+      messageDiv.textContent = '登録中...';
+      messageDiv.style.color = 'black';
 
-<script>
-  // Supabase URL (末尾の /rest/v1/ は含めない)
-  const SUPABASE_URL = "https://lalbvmmigfkthliihjil.supabase.co";
-  const SUPABASE_KEY = "sb_publishable_g7WYzExhUw4-ivkla-GURQ_luS59YLN";
-  const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+      const { data, error } = await supabaseClient
+        .from('subscribers')
+        .upsert([{ email, dispatch_time }], { onConflict: 'email' });
 
-  document.getElementById('subscribe-form').addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const email = document.getElementById('email').value;
-    const time = document.getElementById('time').value;
-    const msgDiv = document.getElementById('message');
-
-    msgDiv.style.color = "#475569";
-    msgDiv.textContent = "登録中...";
-
-    const { data, error } = await supabaseClient
-      .from('subscribers')
-      .upsert([{ email: email, dispatch_time: time }], { onConflict: 'email' });
-
-    if (error) {
-      msgDiv.style.color = "#dc2626";
-      msgDiv.textContent = "登録に失敗しました。";
-    } else {
-      msgDiv.style.color = "#16a34a";
-      msgDiv.textContent = "登録が完了しました！指定の時間に配信を開始します。";
-      document.getElementById('subscribe-form').reset();
-    }
-  });
-</script>
-
+      if (error) {
+        console.error('Error:', error);
+        messageDiv.textContent = '登録に失敗しました。';
+        messageDiv.style.color = 'red';
+      } else {
+        messageDiv.textContent = '登録が完了しました！';
+        messageDiv.style.color = 'green';
+        document.getElementById('subscribe-form').reset();
+      }
+    });
+  </script>
 </body>
 </html>
